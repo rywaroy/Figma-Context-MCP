@@ -6,6 +6,7 @@ import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import { IncomingMessage, ServerResponse } from "http";
 import { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 import { SimplifiedDesign } from "./services/simplify-node-response";
+import { getCustomComponentDetail } from "./services/knowledge";
 
 export const Logger = {
   log: (...args: any[]) => {},
@@ -166,6 +167,22 @@ export class FigmaMcpServer {
             content: [{ type: "text", text: `Error downloading images: ${error}` }],
           };
         }
+      },
+    );
+
+    this.server.tool(
+      "get_custom_component_detail",
+      `Get the custom component detail of a component, currently only support AButton and AModal`,
+      {
+        componentName: z
+          .enum(["AButton", "AModal"])
+          .describe("The name of the custom component to get the detail of"),
+      },
+      async ({ componentName }) => {
+        const result = await getCustomComponentDetail(componentName);
+        return {
+          content: [{ type: "text", text: result.data.result.output_text_0 }],
+        };
       },
     );
   }
